@@ -1,10 +1,30 @@
 version: '3.9'
 
 services:
+  db:
+    image: postgres:15-alpine
+    container_name: py_micro_db
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - py_micro_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: py_micro_redis
+    networks:
+      - py_micro_net
+
   backend:
     build:
       context: ./backend
     container_name: py_micro_backend
+    depends_on:
+      - db
     ports:
       - "8000:8000"
     networks:
@@ -14,8 +34,11 @@ services:
     build:
       context: ./frontend
     container_name: py_micro_frontend
+    depends_on:
+      - backend
+      - redis
     ports:
-      - "5000:5000"
+      - "5001:5000"
     networks:
       - py_micro_net
 
@@ -31,6 +54,9 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - py_micro_net
+
+volumes:
+  db_data:
 
 networks:
   py_micro_net:

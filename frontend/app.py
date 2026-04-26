@@ -15,3 +15,6 @@ def home():
     <p>Visits: {count}</p>
     <p>Backend Data: {api_response}</p>
     """
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
